@@ -11,9 +11,8 @@ import evaluate
 import flwr as fl
 import numpy as np
 import torch
+from models import CNNTrainer
 from transformers import TrainingArguments
-
-from .models import CNNTrainer
 
 
 def _compute_metrics(eval_pred):

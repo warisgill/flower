@@ -57,7 +57,7 @@ def train_test_transforms_factory(cfg):
     # image_processor = AutoImageProcessor.from_pretrained(cfg.mname)
     if cfg.dname == "cifar10":
 
-        def apply_train_transformCifar(example):
+        def apply_train_transform_cifar(example):
             transform = Compose(
                 [
                     Resize((32, 32)),
@@ -74,7 +74,7 @@ def train_test_transforms_factory(cfg):
             # del example['label']
             return example
 
-        def apply_test_transformCifar(example):
+        def apply_test_transform_cifar(example):
             transform = Compose(
                 [
                     Resize((32, 32)),
@@ -91,11 +91,11 @@ def train_test_transforms_factory(cfg):
             # del example['label']
             return example
 
-        train_transforms = apply_train_transformCifar
-        test_transforms = apply_test_transformCifar
+        train_transforms = apply_train_transform_cifar
+        test_transforms = apply_test_transform_cifar
     elif cfg.dname == "mnist":
 
-        def apply_train_transformMnist(example):
+        def apply_train_transform_mnist(example):
 
             transform = Compose(
                 [Resize((32, 32)), ToTensor(), Normalize((0.1307,), (0.3081,))]
@@ -122,7 +122,7 @@ def train_test_transforms_factory(cfg):
 
             return example
 
-        train_transforms = apply_train_transformMnist
+        train_transforms = apply_train_transform_mnist
         test_transforms = apply_test_transform_mnist
 
     else:
@@ -131,7 +131,7 @@ def train_test_transforms_factory(cfg):
     return {"train": train_transforms, "test": test_transforms}
 
 
-def getLabelsCount(partition, target_label_col):
+def get_labels_count(partition, target_label_col):
     """Return the count of labels in the partition."""
     label2count = Counter(
         example[target_label_col] for example in partition  # type: ignore
@@ -140,9 +140,9 @@ def getLabelsCount(partition, target_label_col):
     return dict(label2count)
 
 
-def fixPartition(cfg, c_partition, target_label_col):
+def fix_partition(cfg, c_partition, target_label_col):
     """Fix the partition to have a minimum of 10 examples per class."""
-    label2count = getLabelsCount(c_partition, target_label_col)
+    label2count = get_labels_count(c_partition, target_label_col)
 
     filtered_labels = {
         label: count for label, count in label2count.items() if count >= 10
@@ -163,11 +163,11 @@ def fixPartition(cfg, c_partition, target_label_col):
     if len(ds) % cfg.batch_size == 1:
         ds = ds.select(range(len(ds) - 1))
 
-    partition_labels_count = getLabelsCount(ds, target_label_col)
+    partition_labels_count = get_labels_count(ds, target_label_col)
     return {"partition": ds, "partition_labels_count": partition_labels_count}
 
 
-def dirichletDataDistribution(
+def dirichlet_data_distribution(
     cfg, target_label_col, fetch_only_test_data, subtask=None
 ):
     """Create a Dirichlet data distribution."""
@@ -201,7 +201,7 @@ def dirichletDataDistribution(
         for partition_index in range(cfg.num_clients):
             partition = fds.load_partition(partition_index)
 
-            d = fixPartition(cfg, partition, target_label_col)
+            d = fix_partition(cfg, partition, target_label_col)
 
             if len(d["partition"]) >= cfg.batch_size:
                 clients_data.append(d["partition"])

@@ -32,7 +32,7 @@ def _compute_metrics(eval_pred):
     return d
 
 
-def initializeModel(name, cfg_dataset):
+def initialize_model(name, cfg_dataset):
     """Initialize the model with the given name."""
     model_dict = {"model": None}
     if name in ["resnet18"]:
@@ -102,7 +102,7 @@ class CNNTrainer(Trainer):
         return (loss, logits, labels)
 
 
-def _testCNNModel(gm_dict, central_server_test_data, batch_size):
+def _test_cnn_model(gm_dict, central_server_test_data, batch_size):
     net = gm_dict["model"]
     logging.debug("Evaluating cnn model")
     testing_args = TrainingArguments(
@@ -132,11 +132,11 @@ def _testCNNModel(gm_dict, central_server_test_data, batch_size):
     return r
 
 
-def globalModelEval(arch, global_net_dict, server_testdata, batch_size=16):
+def global_model_eval(arch, global_net_dict, server_testdata, batch_size=16):
     """Evaluate the global model on the server test data."""
     d = {}
     if arch == "cnn":
-        d = _testCNNModel(
+        d = _test_cnn_model(
             global_net_dict,
             central_server_test_data=server_testdata,
             batch_size=batch_size,

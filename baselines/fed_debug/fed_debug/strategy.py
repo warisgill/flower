@@ -9,12 +9,17 @@ import logging
 
 import flwr as fl
 import torch
+from models import initialize_model
 
-from .models import initializeModel
 
-
-class SaveModelStrategy(fl.server.strategy.FedAvg):
+class FedAvgSave(fl.server.strategy.FedAvg):
     """SaveModelStrategy."""
+
+    def __init__(self, cfg, cache, *args, **kwargs):
+        """Initialize."""
+        super().__init__(*args, **kwargs)
+        self.cfg = cfg
+        self.cache = cache
 
     def aggregate_fit(self, server_round, results, failures):
         """Aggregate clients updates."""
@@ -52,14 +57,9 @@ class SaveModelStrategy(fl.server.strategy.FedAvg):
     def get_state_dict_from_parameters(self, parameters):
         """Convert parameters to state_dict."""
         ndarr = fl.common.parameters_to_ndarrays(parameters)
-        temp_net = initializeModel(self.cfg.model.name, self.cfg.dataset)["model"]
+        temp_net = initialize_model(self.cfg.model.name, self.cfg.dataset)["model"]
         params_dict = zip(temp_net.state_dict().keys(), ndarr)
         state_dict = {k: torch.tensor(v) for k, v in params_dict}
         temp_net.train()
         temp_net.load_state_dict(state_dict, strict=True)
         return temp_net.state_dict()
-
-    def set_cache_and_exp_key(self, cache, cfg):
-        """Set the cache and experiment key."""
-        self.cache = cache
-        self.cfg = cfg

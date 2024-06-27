@@ -1,0 +1,63 @@
+hydra:
+  job_logging:
+    root:
+        level: INFO  # Set the job logging level to INFO
+    loggers:
+        flwr:
+            level: INFO
+
+
+storage:
+    dir: storage_fed_debug/
+    cache_name: training_fed_debug
+
+key: "key_test" # this is the test key. It will be changed after running the exp
+
+
+check_cache: False # if set to True then if the config is already in the cache then it will not retrain. 
+device: "cuda"
+total_gpus: 1
+total_cpus: 16
+
+client_cpus: 1
+client_gpu: 0.1
+
+
+client:
+    epochs: 2
+    lr: 0.001
+
+
+model:
+    name: resnet18
+    arch: cnn
+
+dataset:
+    name: "mnist"
+    num_classes: 10
+
+
+
+noise_rate: 1
+faulty_clients_ids: ["0"] # only client-0 will be faulty in default config
+
+
+
+strategy:
+    name: fedavg # points to your strategy (either custom or exiting in Flower)
+    # rest of strategy config
+    num_rounds: 1
+    clients_per_round: 10
+  
+
+data_dist:
+    num_clients: ${strategy.clients_per_round}
+    batch_size: 32
+    dirichlet_alpha: 1
+    dist_type: nonIID
+    dname: ${dataset.name}
+    mname: ${model.name}
+    storage_dir: ${storage.dir}
+    max_per_client_data_size: 2048
+    max_server_data_size: 2048
+
