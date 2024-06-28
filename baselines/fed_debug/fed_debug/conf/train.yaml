@@ -5,6 +5,13 @@ hydra:
     loggers:
         flwr:
             level: INFO
+        accelerate.utils.other:
+            level: ERROR
+    handlers:
+        console:
+            level: ERROR
+        
+
 
 
 storage:
@@ -20,11 +27,11 @@ total_gpus: 1
 total_cpus: 16
 
 client_cpus: 1
-client_gpu: 0.2
+client_gpu: 0.1
 
 
 client:
-    epochs: 5
+    epochs: 1
     lr: 0.001
 
 
@@ -59,6 +66,6 @@ data_dist:
     dname: ${dataset.name}
     mname: ${model.name}
     storage_dir: ${storage.dir}
-    max_per_client_data_size: 2048
+    # max_per_client_data_size: 2048
     max_server_data_size: 2048
 

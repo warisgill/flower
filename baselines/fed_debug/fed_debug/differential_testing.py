@@ -30,7 +30,7 @@ class InferenceGuidedInputs:
         
 
     def _getRandomInput(self):
-        print(f' Random input shape: {self.input_shape}')
+        # print(f' Random input shape: {self.input_shape}')
         img = torch.empty(self.input_shape)
         self.randomGenerator(img)
         img = ToPILImage()(img)

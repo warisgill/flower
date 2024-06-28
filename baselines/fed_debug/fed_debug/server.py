@@ -62,7 +62,6 @@ class FLSimulation:
         self.server_testdata = d["server_data"]
         self.client2class = d["client2class"]
         print(f'client2class: {self.client2class}')
-        _ = input("Press Enter to continue...")
 
         if len(self.cfg.faulty_clients_ids) > 0:
             self.make_faulty_clients()
@@ -101,8 +100,15 @@ class FLSimulation:
                 ),
                 evaluate_fn=self._evaluate_global_model,  # ignore
                 on_fit_config_fn=self._get_fit_config,  # Pass the fit_config function
+                fit_metrics_aggregation_fn= self._fit_metrics_aggregation_fn,
             )
             self.strategy = strategy
+    def _fit_metrics_aggregation_fn(self, metrics):
+        """Aggregate metrics."""
+        # loss = sum(m["loss"] for m in metrics) / len(metrics)
+        # accuracy = sum(m["accuracy"] for m in metrics) / len(metrics)
+        print(f"metrics: {metrics}")
+        return {"loss": 0.1, "accuracy": 0.2}
 
     def _get_fit_config(self, server_round: int):
         random.seed(server_round)
@@ -129,7 +135,6 @@ class FLSimulation:
     def _get_client(self, cid):
         model_dict = initialize_model(self.cfg.model.name, self.cfg.dataset)
         client = None
-        print(f"-----> Client {cid} is being initialized")
         args = {
             "cid": cid,
             "model_dict": model_dict,

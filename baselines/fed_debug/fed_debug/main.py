@@ -11,6 +11,20 @@ from omegaconf import DictConfig
 from server import run_simulation
 
 
+# Define a function to filter the specific warning
+def filter_kernel_warning(message, category, filename, lineno, file=None, line=None):
+    return "Detected kernel version" not in str(message)
+import warnings
+
+# Set the warning filter
+warnings.filterwarnings("ignore", category=UserWarning, module="accelerate.utils.other")
+
+# # Alternatively, use the custom filter function
+# warnings.showwarning = filter_kernel_warning
+
+# Your code that generates the warning goes here
+
+
 @hydra.main(config_path="conf", config_name="train", version_base=None)
 def main(cfg: DictConfig) -> None:
     """Run the baseline."""

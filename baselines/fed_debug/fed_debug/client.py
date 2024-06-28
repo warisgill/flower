@@ -42,12 +42,12 @@ class CNNFlowerClient(fl.client.NumPyClient):
 
         client_net.zero_grad()
 
-        logging.debug(
-            f"> client {self.config['cid']} taining start, "
-            f"local_epochs: {local_epochs}, "
-            f"batch_size: {batch_size}, lr: {lr}, "
-            f"nk_client_data_points: {nk_client_data_points}"
-        )
+        # logging.debug(
+        #     f"> client {self.config['cid']} taining start, "
+        #     f"local_epochs: {local_epochs}, "
+        #     f"batch_size: {batch_size}, lr: {lr}, "
+        #     f"nk_client_data_points: {nk_client_data_points}"
+        # )
 
         set_parameters(model=client_net, parameters=parameters)
 
@@ -79,18 +79,17 @@ class CNNFlowerClient(fl.client.NumPyClient):
         )  # type: ignore
 
         trainer.train()
+        
 
-        client_eval = trainer.evaluate(self.config["client_data_train"])
-        print(f"Client {self.config['cid']} evaluation: {client_eval}")
-
-
+        client_train_metrics = trainer.evaluate(self.config["client_data_train"])
 
         client_net.eval()
         client_net = client_net.cpu()
         parameters = get_parameters(client_net)
         del trainer
         del client_net
-        return parameters, nk_client_data_points, {"cid": self.config["cid"]}
+        client_train_dict = {"cid": self.config["cid"]} | client_train_metrics
+        return parameters, nk_client_data_points, client_train_dict
 
 
 def get_parameters(model):

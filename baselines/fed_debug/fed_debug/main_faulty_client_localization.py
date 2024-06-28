@@ -5,6 +5,7 @@ from diskcache import Index
 from multiprocessing import Pool
 from torch.nn.init import  kaiming_uniform_
 from typing import Dict, List, Optional, Tuple
+import copy
 
 from models import initialize_model
 from differential_testing import FaultyClientLocalization, InferenceGuidedInputs
@@ -69,7 +70,7 @@ class FedDebug:
         generate_inputs = InferenceGuidedInputs(self.client2model, self.input_shape, randomGenerator= self.random_generator, transform_func=self.transform_func, min_nclients_same_pred=3, k_gen_inputs=k_gen_inputs)
 
         selected_inputs, input_gen_time = generate_inputs.getInputs()
-        print(selected_inputs)
+        # print(selected_inputs)
 
         start = time.time()
         faultyclientlocalization = FaultyClientLocalization(self.client2model, selected_inputs, use_gpu=use_gpu)
@@ -175,7 +176,10 @@ def run_fed_debug(cfg):
 
 @hydra.main(config_path="conf", config_name="debug", version_base=None)
 def main(cfg):
-    run_fed_debug(cfg)
+    for k in cfg.all_exp_keys:
+        new_cfg = copy.deepcopy(cfg)
+        new_cfg.exp_key = k
+        run_fed_debug(new_cfg)
 
 if __name__ == "__main__":
     main()
