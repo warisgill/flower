@@ -38,9 +38,10 @@ block) that this file should be executed first.
 import logging
 from collections import Counter
 
+from py import log
 import torch
 from flwr_datasets import FederatedDataset
-from flwr_datasets.partitioner import DirichletPartitioner
+from flwr_datasets.partitioner import DirichletPartitioner,IidPartitioner
 from torchvision.transforms import (
     Compose,
     Normalize,
@@ -166,20 +167,33 @@ def fix_partition(cfg, c_partition, target_label_col):
     partition_labels_count = get_labels_count(ds, target_label_col)
     return {"partition": ds, "partition_labels_count": partition_labels_count}
 
+def _get_partitioner(cfg, target_label_col):
+    logging.info(f"Data distribution type: {cfg.dist_type}")
+    if cfg.dist_type == "iid":
+        partitioner = IidPartitioner(num_partitions=cfg.num_clients)
+        return partitioner
+    elif cfg.dist_type == "non_iid_dirichlet":
+        """Create a Dirichlet data distribution."""
+        partitioner = DirichletPartitioner(
+            num_partitions=cfg.num_clients,
+            partition_by=target_label_col,
+            alpha=cfg.dirichlet_alpha,
+            min_partition_size=0,
+            self_balancing=True,
+            shuffle=True,
+        )
+        return partitioner
+    else:
+        return None
+        
 
-def dirichlet_data_distribution(
+
+def clients_data_distribution(
     cfg, target_label_col, fetch_only_test_data, subtask=None
 ):
-    """Create a Dirichlet data distribution."""
-    partitioner = DirichletPartitioner(
-        num_partitions=cfg.num_clients,
-        partition_by=target_label_col,
-        alpha=cfg.dirichlet_alpha,
-        min_partition_size=0,
-        self_balancing=True,
-        shuffle=True,
-    )
+    
 
+    partitioner = _get_partitioner(cfg, target_label_col)
     # logging.info(f"Dataset name: {cfg.dname}")
     clients_class = []
     clients_data = []

@@ -10,7 +10,7 @@ defined here of course.
 """
 
 from dataset_preparation import (
-    dirichlet_data_distribution,
+    clients_data_distribution,
     train_test_transforms_factory,
 )
 
@@ -18,7 +18,7 @@ from dataset_preparation import (
 def initialize_image_dataset(cfg, fetch_only_test_data):
     """Initialize and return the image dataset."""
     target_label_col = "label"
-    d = dirichlet_data_distribution(cfg, target_label_col, fetch_only_test_data)
+    d = clients_data_distribution(cfg, target_label_col, fetch_only_test_data)
     transforms = train_test_transforms_factory(cfg=cfg)
     d["client2data"] = {
         k: v.map(transforms["train"]) for k, v in d["client2data"].items()

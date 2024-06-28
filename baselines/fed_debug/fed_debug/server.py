@@ -17,6 +17,7 @@ from flwr.common import ndarrays_to_parameters
 from models import global_model_eval, initialize_model
 from strategy import FedAvgSave
 from utils import add_noise_in_data
+import torch
 
 
 class FLSimulation:
@@ -194,10 +195,15 @@ def run_simulation(cfg):
     sim = FLSimulation(cfg, cache)
     round2results = sim.run()
 
+
+    temp_input = torch.tensor(sim.server_testdata[0]["pixel_values"])
+
+
     cache[cfg.key] = {
         "client2class": sim.client2class,
         "train_cfg": cfg,
         "complete": True,
+        'input_shape': temp_input.shape,
         "all_ronuds_gm_results": round2results,
     }
 

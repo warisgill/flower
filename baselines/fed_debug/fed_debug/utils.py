@@ -42,3 +42,6 @@ def add_noise_in_data(client_data, label_col, noise_rate):
 
     client_data = client_data.map(_lambda)
     return client_data
+
+
+
