@@ -20,7 +20,7 @@ total_gpus: 1
 total_cpus: 16
 
 client_cpus: 1
-client_gpu: 0.1
+client_gpu: 0.2
 
 
 client:
@@ -54,7 +54,7 @@ data_dist:
     # dist_type: non_iid_dirichlet
     dist_type: iid
     num_clients: ${strategy.clients_per_round}
-    batch_size: 32
+    batch_size: 512
     dirichlet_alpha: 1
     dname: ${dataset.name}
     mname: ${model.name}

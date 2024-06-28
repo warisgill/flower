@@ -21,13 +21,13 @@ def _compute_metrics(eval_pred):
     metric = evaluate.load("accuracy")
     logits, labels = eval_pred
     predictions = np.argmax(logits, axis=-1)
-    correct_predictions = predictions == labels
-    correct_indices = np.where(correct_predictions)[0]
-    correct_indices = torch.from_numpy(correct_indices)
+    # correct_predictions = predictions == labels
+    # correct_indices = np.where(correct_predictions)[0]
+    # correct_indices = torch.from_numpy(correct_indices)
     d = {
         "accuracy": metric.compute(predictions=predictions, references=labels),
-        "correct_indices": correct_indices,
-        "actual_labels": labels,
+        "correct_indices": None,
+        "actual_labels": None,
     }
     return d
 

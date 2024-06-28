@@ -1,7 +1,7 @@
 ---
 all_exp_keys: []
 device: cuda
-exp_key: resnet18-mnist-faulty_clients[['0']]-noise_rate1-TClients10-fedavg-(R1-clientsPerR10)-nonIID1-batch32-epochs2-lr0.001
+exp_key: resnet18-mnist-faulty_clients[['0']]-noise_rate1-TClients10-fedavg-(R1-clientsPerR10)-iid1-batch512-epochs5-lr0.001
 parallel_processes: 0
 
 storage:

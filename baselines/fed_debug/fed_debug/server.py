@@ -61,6 +61,8 @@ class FLSimulation:
 
         self.server_testdata = d["server_data"]
         self.client2class = d["client2class"]
+        print(f'client2class: {self.client2class}')
+        _ = input("Press Enter to continue...")
 
         if len(self.cfg.faulty_clients_ids) > 0:
             self.make_faulty_clients()

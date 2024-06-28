@@ -80,6 +80,11 @@ class CNNFlowerClient(fl.client.NumPyClient):
 
         trainer.train()
 
+        client_eval = trainer.evaluate(self.config["client_data_train"])
+        print(f"Client {self.config['cid']} evaluation: {client_eval}")
+
+
+
         client_net.eval()
         client_net = client_net.cpu()
         parameters = get_parameters(client_net)

@@ -157,12 +157,12 @@ def fix_partition(cfg, c_partition, target_label_col):
 
     ds = c_partition.select(indices_to_select)
 
-    if len(ds) > cfg.max_per_client_data_size:
-        # ds = ds.shuffle()
-        ds = ds.select(range(cfg.max_per_client_data_size))
+    # if len(ds) > cfg.max_per_client_data_size:
+    #     # ds = ds.shuffle()
+    #     ds = ds.select(range(cfg.max_per_client_data_size))
 
-    if len(ds) % cfg.batch_size == 1:
-        ds = ds.select(range(len(ds) - 1))
+    # if len(ds) % cfg.batch_size == 1:
+    #     ds = ds.select(range(len(ds) - 1))
 
     partition_labels_count = get_labels_count(ds, target_label_col)
     return {"partition": ds, "partition_labels_count": partition_labels_count}
