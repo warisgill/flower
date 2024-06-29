@@ -29,7 +29,7 @@ def initialize_image_dataset(cfg, fetch_only_test_data):
 
 def load_datasets(cfg, fetch_only_test_data=False):
     """Load the dataset and return the dataload."""
-    if cfg.dname in ["cifar10", "mnist"]:
+    if cfg.dname in ["cifar10", "mnist", 'flwrlabs/femnist']:
         return initialize_image_dataset(cfg, fetch_only_test_data)
     return None
 

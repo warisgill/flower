@@ -91,7 +91,7 @@ class FedDebug:
 
         eval_metrics = {'accuracy': fault_localization_acc}
 
-
+        logging.info(f'Fault Localization Accuracy: {fault_localization_acc}')
 
         
         debug_result = {
@@ -121,7 +121,6 @@ def _checkAlredyDone(fl_config_key: str, results_cache):
         d = results_cache[fl_config_key]        
         return d["round2debug_result"]
     return []
-
 
 
 
@@ -176,10 +175,13 @@ def run_fed_debug(cfg):
 
 @hydra.main(config_path="conf", config_name="debug", version_base=None)
 def main(cfg):
-    for k in cfg.all_exp_keys:
-        new_cfg = copy.deepcopy(cfg)
-        new_cfg.exp_key = k
-        run_fed_debug(new_cfg)
+    if len(cfg.all_exp_keys) > 0:
+        for k in cfg.all_exp_keys:
+            new_cfg = copy.deepcopy(cfg)
+            new_cfg.exp_key = k
+            run_fed_debug(new_cfg)
+    else:
+        run_fed_debug(cfg)
 
 if __name__ == "__main__":
     main()

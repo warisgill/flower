@@ -7,13 +7,10 @@ the python code at all
 """
 
 import logging
-
 import evaluate
 import numpy as np
 import torch
-import torch.nn.functional as F
-from torch import nn
-from torchvision.models import resnet18
+import torchvision
 from transformers import DefaultDataCollator, Trainer, TrainingArguments
 
 
@@ -35,9 +32,43 @@ def _compute_metrics(eval_pred):
 def initialize_model(name, cfg_dataset):
     """Initialize the model with the given name."""
     model_dict = {"model": None}
-    if name in ["resnet18"]:
-        model = resnet18(weights=None)
-        model.fc = torch.nn.Linear(model.fc.in_features, cfg_dataset.num_classes)
+    
+    if name.find("resnet") != -1:
+        model = None
+        if "resnet18" == name:
+            model = torchvision.models.resnet18(weights="IMAGENET1K_V1")
+        elif "resnet34" == name:
+            model = torchvision.models.resnet34(weights="IMAGENET1K_V1")
+        elif "resnet50" == name:
+            model = torchvision.models.resnet50(weights="IMAGENET1K_V1")
+        elif "resnet101" == name:
+            model = torchvision.models.resnet101(weights="IMAGENET1K_V1")
+        elif "resnet152" == name:
+            model = torchvision.models.resnet152(weights="IMAGENET1K_V1")
+
+        # if cfg_dataset.channels == 1:
+        #     model.conv1 = torch.nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
+
+        # set_parameter_requires_grad(model, feature_extract)
+        num_ftrs = model.fc.in_features
+        model.fc = torch.nn.Linear(num_ftrs, cfg_dataset.num_classes)
+        model_dict["model"] = model.cpu()
+
+    elif name == "densenet121":
+        model = torchvision.models.densenet121(weights="IMAGENET1K_V1")
+        # if cfg_dataset.channels == 1:  
+        #     model.features[0] = torch.nn.Conv2d(1, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+    
+        num_ftrs = model.classifier.in_features
+        model.classifier = torch.nn.Linear(num_ftrs, cfg_dataset.num_classes)
+        model_dict["model"] = model.cpu()
+    elif name == "vgg16":
+        model = torchvision.models.vgg16(weights="IMAGENET1K_V1")    
+        # if cfg_dataset.channels == 1:
+        #     model.features[0] = torch.nn.Conv2d(1, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+                
+        num_ftrs = model.classifier[6].in_features
+        model.classifier[6] = torch.nn.Linear(num_ftrs, cfg_dataset.num_classes)
         model_dict["model"] = model.cpu()
     else:
         raise ValueError(f"Model {name} not supported")
@@ -45,32 +76,7 @@ def initialize_model(name, cfg_dataset):
     return model_dict
 
 
-class LeNet(nn.Module):
-    """LeNet model for image classification.
 
-    This class implements the LeNet architecture for image classification, consisting of
-    convolutional and fully connected layers.
-    """
-
-    def __init__(self, cfg_dataset) -> None:
-        """Initialize the LeNet model."""
-        super().__init__()
-        self.conv1 = nn.Conv2d(cfg_dataset.channels, 6, 5)
-        self.pool = nn.MaxPool2d(2, 2)
-        self.conv2 = nn.Conv2d(6, 16, 5)
-        self.fc1 = nn.Linear(16 * 5 * 5, 120)
-        self.fc2 = nn.Linear(120, 84)
-        self.fc3 = nn.Linear(84, cfg_dataset.num_classes)
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Forward pass of the model."""
-        x = self.pool(F.relu(self.conv1(x)))
-        x = self.pool(F.relu(self.conv2(x)))
-        x = x.view(-1, 16 * 5 * 5)
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        x = self.fc3(x)
-        return x
 
 
 class CNNTrainer(Trainer):
@@ -82,7 +88,7 @@ class CNNTrainer(Trainer):
         batch_inputs = inputs.get("pixel_values")
         outputs = model(batch_inputs)
         logits = outputs
-        loss_fct = nn.CrossEntropyLoss()
+        loss_fct = torch.nn.CrossEntropyLoss()
         loss = loss_fct(logits, labels)
         return (loss, outputs) if return_outputs else loss
 
@@ -95,7 +101,7 @@ class CNNTrainer(Trainer):
             logits = model(inputs["pixel_values"])
             if "labels" in inputs:
                 labels = inputs.get("labels")
-                loss = nn.CrossEntropyLoss()(logits, labels)
+                loss = torch.nn.CrossEntropyLoss()(logits, labels)
 
         if prediction_loss_only:
             return (loss, None, None)

@@ -67,12 +67,12 @@ def train_test_transforms_factory(cfg):
                     Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
                 ]
             )
-            example["pixel_values"] = [
-                transform(image.convert("RGB")) for image in example["img"]
-            ]
+            example["pixel_values"] = transform(example["img"].convert("RGB"))
+            # example["pixel_values"] = [
+            #     transform(image.convert("RGB")) for image in example["img"]
+            # ]
             example["label"] = torch.tensor(example["label"])
             del example["img"]
-            # del example['label']
             return example
 
         def apply_test_transform_cifar(example):
@@ -84,17 +84,18 @@ def train_test_transforms_factory(cfg):
                 ]
             )
 
-            example["pixel_values"] = [
-                transform(image.convert("RGB")) for image in example["img"]
-            ]
+            example["pixel_values"] = transform(example["img"].convert("RGB"))
+
+            # example["pixel_values"] = [
+            #     transform(image.convert("RGB")) for image in example["img"]
+            # ]
             example["label"] = torch.tensor(example["label"])
             del example["img"]
-            # del example['label']
             return example
 
         train_transforms = apply_train_transform_cifar
         test_transforms = apply_test_transform_cifar
-    elif cfg.dname == "mnist":
+    elif cfg.dname in  ["mnist", "flwrlabs/femnist"]:
 
         def apply_train_transform_mnist(example):
 
@@ -157,12 +158,14 @@ def fix_partition(cfg, c_partition, target_label_col):
 
     ds = c_partition.select(indices_to_select)
 
+    print(f"len(ds) : {len(ds)}, keys : {ds[0].keys()}")
+
     # if len(ds) > cfg.max_per_client_data_size:
     #     # ds = ds.shuffle()
     #     ds = ds.select(range(cfg.max_per_client_data_size))
 
-    # if len(ds) % cfg.batch_size == 1:
-    #     ds = ds.select(range(len(ds) - 1))
+    if len(ds) % cfg.batch_size == 1:
+        ds = ds.select(range(len(ds) - 1))
 
     partition_labels_count = get_labels_count(ds, target_label_col)
     return {"partition": ds, "partition_labels_count": partition_labels_count}
