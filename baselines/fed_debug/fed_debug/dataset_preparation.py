@@ -158,7 +158,7 @@ def fix_partition(cfg, c_partition, target_label_col):
 
     ds = c_partition.select(indices_to_select)
 
-    print(f"len(ds) : {len(ds)}, keys : {ds[0].keys()}")
+    # print(f"len(ds) : {len(ds)}, keys : {ds[0].keys()}")
 
     # if len(ds) > cfg.max_per_client_data_size:
     #     # ds = ds.shuffle()

@@ -32,7 +32,7 @@ def _compute_metrics(eval_pred):
 def initialize_model(name, cfg_dataset):
     """Initialize the model with the given name."""
     model_dict = {"model": None}
-    
+
     if name.find("resnet") != -1:
         model = None
         if "resnet18" == name:
@@ -56,17 +56,17 @@ def initialize_model(name, cfg_dataset):
 
     elif name == "densenet121":
         model = torchvision.models.densenet121(weights="IMAGENET1K_V1")
-        # if cfg_dataset.channels == 1:  
+        # if cfg_dataset.channels == 1:
         #     model.features[0] = torch.nn.Conv2d(1, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
-    
+
         num_ftrs = model.classifier.in_features
         model.classifier = torch.nn.Linear(num_ftrs, cfg_dataset.num_classes)
         model_dict["model"] = model.cpu()
     elif name == "vgg16":
-        model = torchvision.models.vgg16(weights="IMAGENET1K_V1")    
+        model = torchvision.models.vgg16(weights="IMAGENET1K_V1")
         # if cfg_dataset.channels == 1:
         #     model.features[0] = torch.nn.Conv2d(1, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
-                
+
         num_ftrs = model.classifier[6].in_features
         model.classifier[6] = torch.nn.Linear(num_ftrs, cfg_dataset.num_classes)
         model_dict["model"] = model.cpu()
@@ -74,9 +74,6 @@ def initialize_model(name, cfg_dataset):
         raise ValueError(f"Model {name} not supported")
 
     return model_dict
-
-
-
 
 
 class CNNTrainer(Trainer):

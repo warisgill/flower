@@ -28,7 +28,7 @@ client_gpu: 0.1
 
 
 client:
-    epochs: 3
+    epochs: 5
     lr: 0.001
 
 

@@ -45,8 +45,8 @@ def fed_debug_multiple_faulty_clients_experiment(main_cfg):
 @hydra.main(config_path="conf", config_name="train", version_base=None)
 def main(cfg: DictConfig) -> None:
     """Run the baseline."""
-    run_simulation(cfg)
-    # fed_debug_multiple_faulty_clients_experiment(cfg)
+    # run_simulation(cfg)
+    fed_debug_multiple_faulty_clients_experiment(cfg)
 
 
 if __name__ == "__main__":

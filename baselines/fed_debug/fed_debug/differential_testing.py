@@ -34,7 +34,7 @@ class InferenceGuidedInputs:
         img = torch.empty(self.input_shape)
         self.randomGenerator(img)
         img = ToPILImage()(img)
-        input_image =  {'image': img, 'label': -1}
+        input_image =  {'image': img, 'img':img, 'label': -1}
         if self.transform is not None:    
             return self.transform(input_image)['pixel_values'].unsqueeze(0)
         return input_image['image'].unsqueeze(0)
